@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:title" content="NYC Map Tiles">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:type" content="website">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:url" content=".">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:image" content="./img/og.png">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:image:width" content="1200">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:image:height" content="626">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:description" content="NYC Map Tiles - Basemap, label and aerial photography Tile Map Service specifications and how-to">
+	<meta prefix="og: http:/ogp.me/ns#" property="og:site_name" content="finder.nyc.gov">	
+	
+	<title>NYC Map Tiles</title>
+	
+	<link rel="manifest" href="./manifest.webmanifest">
+	<link rel="apple-touch-startup-image" href="./img/icon-512.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="./img/icon-60.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="./img/icon-76.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="./img/icon-120.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="./img/icon-152.png">	
+	<link rel="apple-touch-icon" sizes="167x167" href="./img/icon-167.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="./img/icon-180.png">
+	<style>
+		html { 
+			background: url(img/mtc.png) no-repeat center center fixed; 
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+		}
+		html, body {
+			font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+		}
+		body {
+			padding-bottom: 3em;
+		}
+		h1 {
+			display: inline-block;
+		}
+		#banner {
+			width: 3.2em;
+			background-image: url(img/nyc.svg);
+			background-repeat: no-repeat;
+			background-size: 3em;
+		}
+		#banner span {
+			position: relative;
+			left: 0;
+			top: 1em;
+			font-size: .44em;
+			font-weight: bold;
+		}
+		ul.tms-info {
+			margin-top: .5em;
+		}
+		.code {
+			font-family: Consolas, Monaco, 'Andale Mono', monospace;
+		}
+		span.code {
+			-ms-word-break: break-all;
+			word-break: break-all;
+			word-break: break-word;
+		}
+		p.code {
+			white-space: pre;
+			border: 1px solid rgba(0,0,0,.5);
+			border-radius: .2em;
+			background-color: rgba(255,255,255,.6);
+			padding: .5em;
+			overflow: auto;
+		}
+		a, a:visited {
+			color: #800000;
+			text-decoration: none;
+			font-weight: 600;
+		}
+		a:hover, a:active {
+			color: red;
+		}
+		.toc li {
+			margin: 5px 0 5px 0;
+		}
+	</style>
+</head>
+<body>
+	<h1>Map Tiles</h1>
+	
+	<h2>Table of Contents</h2>
+	<ul class="toc">
+		<li><a href="#background">Background</a></li>
+		<li><a href="#license">License</a></li>
+		<li>
+			<a href="#tms">Tile Map Service</a>
+			<ul>
+				<li><a href="#basemap-layers-tms">Basemap Tile Layers (TMS)</a></li>
+				<li><a href="#aerial-layers-tms">Aerial Photography Tile Layers (TMS)</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="#wmts">Web Map Tile Service</a>
+			<ul>
+				<li><a href="#basemap-layers-wmts">Basemap Tile Layers (WMTS)</a></li>
+				<li><a href="#aerial-layers-wmts">Aerial Photography Tile Layers (WMTS)</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="#js">Javascript How To</a>
+			<ul>
+				<li>
+					<a href="#ol">OpenLayers</a>
+					<ul>
+						<li><a href="#ol">TMS</a></li>
+						<li><a href="#ol-wmts">WMTS</a></li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+		<li>
+			<a href="#desk">Desktop How To</a>
+			<ul>
+				<li><a href="#qgis">QGIS</a></li>
+				<li><a href="#arcmap">ArcMap</a></li>
+			</ul>
+		</li>
+	</ul>
+	
+	<h2 id="background">Background</h2>
+	<p>
+		<a href="https://en.wikipedia.org/wiki/Orthophoto">Digital orthophotography</a> (orthos) for NYC has been captured on a biennial basis since 2004. Prior to that there were two ad-hoc captures starting with 1996. 
+		The orthos have evolved over the years from 1-foot pixel resolution, with selective true ortho, to 6-inch pixel resolution with full true orthos. These image data sets, along with additional aerial photography 
+		captured prior to 1996, are being made publicly available as described below. <a href="https://github.com/CityOfNewYork/nyc-geo-metadata/blob/master/Metadata/Metadata_AerialImagery.md">Click here further details on the aerial and orthophotography data</a>.
+	</p>
+	<p>
+		Beginning in 2004 planimetric data (i.e., geographic features captured from aerial survey) has been extracted from the orthos every-other ortho capture (i.e., every four years). Although the planimetric data sets 
+		are already available on the <a href="https://nycopendata.socrata.com/browse?q=planimetrics">NYC OpenData Portal</a>, a map service is being made available to extend and simplify usage of the data as described below. 
+		<a href="https://github.com/CityOfNewYork/nyc-planimetrics/blob/master/Capture_Rules.md">Click here for further details on the planimetric data</a>.  
+	</p>
+	
+	<h2 id="license">License</h2>
+	<p>
+		<a href="http://creativecommons.org/licenses/by/4.0"><img src="./img/cc.png" alt="CC-BY License"></a><br>
+		Each of these map tile sets are © City of New York, licensed for reuse under the <a href="http://creativecommons.org/licenses/by/4.0">Creative Commons Attribution (CC BY 4.0)</a> license.
+	</p>
+	
+	<h2 id="tms">Tile Map Service</h2>
+	<p>
+		<strong>Service Description:</strong>
+		<a class="code" href="https://finder.nyc.gov/tms/1.0.0/">https://finder.nyc.gov/tms/1.0.0/</a>
+	</p>
+	<p>
+		The GIS team at NYC's Department of Information Technology has published a new <a href="https://wiki.osgeo.org/wiki/Main_Page">Open Source Geospatial Foundation</a> standard
+		<a href="https://wiki.osgeo.org/wiki/Tile_Map_Service_Specification">Tile Map Service (TMS)</a> using <a href="http://geoserver.org/">GeoServer</a>
+		and <a href="http://geowebcache.org/">GeoWebCache</a> from <a href="http://boundlessgeo.com/">Boundless</a>. The TMS serves multiple tiled maps, in the <a href="https://en.wikipedia.org/wiki/Web_Mercator">Web Mercator</a> projection, 
+		(EPSG:3857) compatible with most JavaScript web mapping libraries such as <a href="http://openlayers.org/">OpenLayers</a>, <a href="https://www.mapbox.com/">MapBox</a>, <a href="http://leafletjs.com/">Leaflet</a>, and
+		even <a href="https://developers.arcgis.com/javascript/">ArcGIS</a>.
+	</p>
+	<p>
+		Note: Basemap tiles containing changing features based on NYC street centerline and building data will be updated on a quarterly basis.  
+	</p>	
+
+	<h3 id="basemap-layers-tms">Basemap Tile Layers (TMS)</h3>
+	<ul>
+		<li>
+			<strong>basemap</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/carto/basemap/service.xml">https://finder.nyc.gov/tms/1.0.0/carto/basemap/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/carto/basemap/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/jpeg</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[39.3682, -75.9374, 42.0329, -71.7187]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8453323, 4774561, -7983695, 5165920]</span>
+				</li>
+			</ul>
+			<p>A base layer for all of your mapping applications that contains parks, streets, buildings and other planimetric features.</p> 
+		</li>
+		<li>
+			<strong>label</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/carto/label/service.xml">https://finder.nyc.gov/tms/1.0.0/carto/label/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/carto/label/</span>
+				</li>
+				<li>
+				</li><li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.0341, -74.2727, 41.2919, -71.9101]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268000, 4870900, -8005000, 5055500]</span>
+				</li>
+			</ul>
+			<p>A label layer that contains neighborhood, park, street and other labels to overlay on the basemap layer.</p> 
+		</li>
+	</ul>
+		
+	<h3 id="aerial-layers-tms">Aerial Photography Tile Layers (TMS)</h3>
+	<ul>
+		<li>
+			<strong>label-lt</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/carto/label/service.xml">https://finder.nyc.gov/tms/1.0.0/carto/label-lt/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/carto/label-lt/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.0341, -74.2727, 41.2919, -71.9101]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268000, 4870900, -8005000, 5055500]</span>
+				</li>
+			</ul>
+			<p>A label layer that contains neighborhood, park, street and other labels to overlay on the aerial photography layers.</p> 
+		</li>
+		<li>
+			<strong>2022</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2022/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2022/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2022/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2018 flyover.</p> 
+		</li>
+		<li>
+			<strong>2020</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2020/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2020/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2020/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2020 flyover.</p> 
+		</li>
+
+		<li>
+			<strong>2018</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2018/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2018/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2018/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2018 flyover.</p> 
+		</li>
+		<li>
+			<strong>2016</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2016/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2016/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2016/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2016 flyover.</p> 
+		</li>
+		<li>
+			<strong>2014</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2014/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2014/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2014/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2014 flyover.</p> 
+		</li>
+		<li>
+			<strong>2012</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2012/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2012/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2012/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2012 flyover.</p> 
+		</li>
+		<li>
+			<strong>2010</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2010/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2010/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2010/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2010 flyover.</p> 
+		</li>
+		<li>
+			<strong>2008</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2008/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2008/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2008/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2008 flyover.</p> 
+		</li>
+		<li>
+			<strong>2006</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2006/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2006/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2006/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2006 flyover.</p> 
+		</li>
+		<li>
+			<strong>2004</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2004/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2004/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2004/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2004 flyover.</p> 
+		</li>
+		<li>
+			<strong>2001-2</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/2001-2/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/2001-2/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/2001-2/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from the 2001-2 flyover.</p> 
+		</li>
+		<li>
+			<strong>1996</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/1996/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/1996/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/1996/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from the 1996 flyover.</p> 
+		</li>
+		<li>
+			<strong>1951</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/1951/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/1951/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/1951/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from a 1951 flyover.</p> 
+		</li>
+		<li>
+			<strong>1924</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Service Description:</strong>
+					<a class="code" href="https://finder.nyc.gov/tms/1.0.0/photo/1924/service.xml">https://finder.nyc.gov/tms/1.0.0/photo/1924/service.xml</a>
+				</li>
+				<li>
+					<strong>URI:</strong>
+					<span class="code">https://finder.nyc.gov/tms/1.0.0/photo/1924/</span>
+				</li>
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from a 1924 flyover.</p> 
+		</li>
+	</ul>
+
+	<h2 id="wmts">Web Map Tile Service (WMTS)</h2>
+	<p>
+		<strong>Get Capabilities:</strong>
+		<a class="code" href="https://finder.nyc.gov/wmts/1.0.0/?REQUEST=getcapabilities">https://finder.nyc.gov/wmts/1.0.0/?REQUEST=getcapabilities</a>
+	</p>
+	<p>
+		The GIS team at NYC's Department of Information Technology has published a new <a href="http://www.opengeospatial.org/">Open Geospatial Consortium</a> standard
+		<a href="http://www.opengeospatial.org/standards/wmts">Web Map Tile Service (WMTS)</a> using <a href="http://geoserver.org/">GeoServer</a>
+		and <a href="http://geowebcache.org/">GeoWebCache</a> from <a href="http://boundlessgeo.com/">Boundless</a>. The TMS serves multiple tiled maps, in the <a href="https://en.wikipedia.org/wiki/Web_Mercator">Web Mercator</a> projection, 
+		(EPSG:3857) compatible with most JavaScript web mapping libraries such as <a href="http://openlayers.org/">OpenLayers</a>, <a href="https://www.mapbox.com/">MapBox</a>, <a href="http://leafletjs.com/">Leaflet</a>, and
+		even <a href="https://developers.arcgis.com/javascript/">ArcGIS</a>.
+	</p>
+	<p>
+		Note: Basemap tiles containing changing features based on NYC street centerline and building data will be updated on a quarterly basis.  
+	</p>	
+
+	<h3 id="basemap-layers-wmts">Basemap Tile Layers (WMTS)</h3>
+	<ul>
+		<li>
+			<strong>basemap</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/jpeg</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[39.3682, -75.9374, 42.0329, -71.7187]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8453323, 4774561, -7983695, 5165920]</span>
+				</li>
+			</ul>
+			<p>A base layer for all of your mapping applications that contains parks, streets, buildings and other planimetric features.</p> 
+		</li>
+		<li>
+			<strong>label</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.0341, -74.2727, 41.2919, -71.9101]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268000, 4870900, -8005000, 5055500]</span>
+				</li>
+			</ul>
+			<p>A label layer that contains neighborhood, park, street and other labels to overlay on the basemap layer.</p> 
+		</li>
+	</ul>
+		
+	<h3 id="aerial-layers-wmts">Aerial Photography Tile Layers (WMTS)</h3>
+	<ul>
+		<li>
+			<strong>label-lt</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.0341, -74.2727, 41.2919, -71.9101]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268000, 4870900, -8005000, 5055500]</span>
+				</li>
+			</ul>
+			<p>A label layer that contains neighborhood, park, street and other labels to overlay on the aerial photography layers.</p> 
+		</li>
+		<li>
+			<strong>2022</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2022 flyover.</p> 
+		</li>
+		<li>
+			<strong>2020</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2020 flyover.</p> 
+		</li>
+		<li>
+			<strong>2018</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2018 flyover.</p> 
+		</li>
+		<li>
+			<strong>2016</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2016 flyover.</p> 
+		</li>
+		<li>
+			<strong>2014</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2014 flyover.</p> 
+		</li>
+		<li>
+			<strong>2012</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2012 flyover.</p> 
+		</li>
+		<li>
+			<strong>2010</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2010 flyover.</p> 
+		</li>
+		<li>
+			<strong>2008</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2008 flyover.</p> 
+		</li>
+		<li>
+			<strong>2006</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2006 flyover.</p> 
+		</li>
+		<li>
+			<strong>2004</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An orthophotography layer created from the 2004 flyover.</p> 
+		</li>
+		<li>
+			<strong>2001-2</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from the 2001-2 flyover.</p> 
+		</li>
+		<li>
+			<strong>1996</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from the 1996 flyover.</p> 
+		</li>
+		<li>
+			<strong>1951</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from a 1951 flyover.</p> 
+		</li>
+		<li>
+			<strong>1924</strong>
+			<ul class="tms-info">
+				<li>
+					<strong>Format:</strong>
+					<span class="code">image/png8</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:4326):</strong>
+					<span class="code">[40.4888, -74.2759, 40.9279, -73.6896]</span>
+				</li>
+				<li>
+					<strong>Extent (EPSG:3857):</strong>
+					<span class="code">[-8268357, 4937238, -8203099, 5001716]</span>
+				</li>
+			</ul>
+			<p>An aerial photography layer created from a 1924 flyover.</p> 
+		</li>
+	</ul>
+
+	<h2 id="js">Javascript How To</h2>
+	<p>
+		Below are some basic examples that show how to use the NYC Map Tiles in a web page.  Please note the extent limits placed on the layers. 
+		These limits will prevent your application from making spurious tile requests for areas outside of extent of the NYC data which could
+		slow down your map rendering.
+	</p>
+	
+	<h3 id="ol">OpenLayers (TMS)</h3>
+	<p class="code">import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import SourceXYZ from 'ol/source/XYZ';
+import Map from 'ol/Map';
+
+const view = new View({
+  center: [-8235252, 4969073],
+  minZoom: 8,
+  maxZoom: 19,
+  zoom: 10
+});
+
+const baseLayer = new TileLayer({
+  extent: [-8453323, 4774561, -7983695, 5165920],
+  source: new SourceXYZ({
+    url: 'https://finder.nyc.gov/tms/1.0.0/carto/basemap/{z}/{x}/{-y}.jpg'
+  })
+});
+
+const labelLayer = new Tile.Layer({
+  extent: [-8268000, 4870900, -8005000, 5055500],
+  source: new SourceXYZ({
+    url: 'https://finder.nyc.gov/tms/1.0.0/carto/label/{z}/{x}/{-y}.png8'
+  })
+});
+
+const map = new Map({
+  target: 'map', /* The id of the DOM element that will contain the map */
+  view: view,
+  layers: [baseLayer, labelLayer]
+});</p>
+
+	<a href="./openlayers-tms.html">View the OpenLayers TMS map...</a>
+
+	<h3 id="ol-wmts">OpenLayers (WMTS)</h3>
+	<p class="code">import View from 'ol/View';
+import WMTSCapabilities from 'ol/format/WMTSCapabilities';
+import {optionsFromCapabilities} from 'ol/format/WMTSCapabilities';
+import TileLayer from 'ol/layer/Tile';
+import SourceWMTS from 'ol/source/WMTS';
+import Map from 'ol/Map';
+
+const view = new View({
+  center: [-8235252, 4969073],
+  minZoom: 8,
+  maxZoom: 19,
+  zoom: 10
+});
+
+const parser = new WMTSCapabilities();
+
+fetch('https://finder.nyc.gov/wmts/1.0.0/?REQUEST=GetCapabilities').then(response => {
+  return response.text();
+}).then(text => {
+  const result = parser.read(text);
+
+  const baseOptions = optionsFromCapabilities(result, {
+      layer: 'basemap',
+      matrixSet: 'EPSG:900913'
+  });
+
+  const labelOptions = optionsFromCapabilities(result, {
+      layer: 'label',
+      matrixSet: 'EPSG:900913'
+  });
+
+  const baseLayer = new TileLayer({
+    source: new SourceWMTS(baseOptions)
+  });
+
+  const labelLayer = TileLayer({
+    source: new oSourceWMTS(labelOptions)
+  });
+
+  map = new Map({
+    target: 'map', /* The id of the DOM element that will contain the map */
+    view: view,
+    layers: [baseLayer, labelLayer]
+  });
+});</p>
+
+	<a href="./openlayers-wmts.html">View the OpenLayers WMTS map...</a>
+
+	<h2 id="desk">Desktop How To</h2>
+	
+	<h3 id="qgis">QGIS</h3>
+	<ol>
+		<li>Download and install QGIS from <a href="https://www.qgis.org/download/">https://www.qgis.org/download/</a></li>
+		<li>Open QGIS</li>
+		<li>Proxy settings (if applicable)
+			<ul>
+				<li>Click the <strong>Settings</strong> menu and choose <strong>Options</strong></li>
+				<li>Click the <strong>Network</strong> icon in the left panel of the <strong>Options</strong> dialog</li>
+				<li>Check <strong>Use proxy for web access</strong></li>
+				<li>Select <strong>HttpProxy</strong> as the <strong>Proxy type</strong></li>
+				<li>NYC employees should check with their LAN administrator or the IE Proxy settings for the following values:
+					<ul>
+						<li>Enter the appropriate proxy server host name in the <strong>Host</strong> field</li>
+						<li>Enter the appropriate proxy server port number in the <strong>Port</strong> field</li>
+						<li>Enter the appropriate proxy server user in the <strong>User</strong> field (for NYC employees this should be your network login user name)</li>
+						<li>Enter the appropriate proxy server password in the <strong>User</strong> field (for NYC employees this should be your network login password)</li>
+					</ul>
+				</li>
+				<li>Click the <strong>Ok</strong> button to close the dialog and save your proxy settings</li>
+			</ul>
+		</li>
+		<li>Click the <strong>Plugins</strong> menu and choose <strong>Manage and Install Plugins...</strong></li>
+		<li>Click the <strong>All</strong> icon in the left panel of the <strong>Plugins</strong> dialog</li>
+		<li>Enter <strong>TileLayer Plugin</strong> in the <strong>Search</strong> field</li>
+		<li>Choose the <strong>TileLayer Plugin</strong> in the center panel of the <strong>Plugins</strong> dialog</li>
+		<li>Click the <strong>Install plugin</strong> button to install the <strong>TileLayer Plugin</strong></li>
+		<li>Click the <strong>Close</strong> button on the dialog</li>
+		<li>Download <a href="./nyc.tsv">nyc.tsv</a> to a folder on your PC</li>
+		<li>Click the <strong>Web</strong> menu and choose <strong>TileLayerPlugin</strong> and then choose <strong>Add Tile Layer</strong></li>
+		<li>Click the <strong>Settings</strong> button in the <strong>Add tile layer</strong> dialog</li>
+		<li>Enter the path to the folder containing the <strong>nyc.tsv</strong> file in the <strong>External layer definition directory</strong> field of the <strong>TileLayerPlugin Settings</strong> dialog</li>
+		<li>Click the <strong>OK</strong> button to close the dialog and save your settings</li>
+		<li>Choose a TMS service from the <strong>nyc</strong> list</li>
+		<li>Click the <strong>Add</strong> button</li>
+	</ol>
+
+	<h3 id="arcmap">ArcMap</h3>
+	<ol>
+		<li>Open <strong>Catalog</strong> in ArcMap</li>
+		<li>Expand the <strong>GIS Servers</strong> section</li>
+		<li>Double-click the <strong>Add WMTS Server</strong> choice to open the <strong>Add WMTS Server</strong> dialog</li>
+		<li>Enter <a href="https://finder.nyc.gov/wmts/1.0.0/?REQUEST=getcapabilities">https://finder.nyc.gov/wmts/1.0.0/?REQUEST=getcapabilities</a> into the <strong>URL</strong> field of the <strong>Add WMTS Server</strong> dialog</li>
+		<li>Click the <strong>Get Layer</strong> button</li> 
+		<li>Click the <strong>Ok</strong> button to in the <strong>Add WMTS Server</strong> dialog</li>
+		<li>In the <strong>GIS Servers</strong> section of <strong>Catalog</strong> there will now be a <strong>Web Map Tile Service - GeoWebCache on finder.nyc.gov</strong> choice</li>
+		<li>Expand the <strong>Web Map Tile Service - GeoWebCache on finder.nyc.gov</strong> choice and drag a layer into the <strong>Table of Contents</strong></li>
+	</ol>
+	
+	
+	
+
+
+</body></html>
