@@ -6,7 +6,14 @@ const config = {
     host: true,
   },
   build: {
-    outDir: './dist'
+    outDir: './dist',
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        tms: 'tms.html',
+        login: 'wmts.html'
+      },
+    },
   }
 };
 
