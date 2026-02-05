@@ -1,14 +1,15 @@
 {
-  "name": "nyc-map-tiles",
+  "name": "training-data-entry",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "vite --host",
     "build": "vite build",
-    "prebuild": "rm -rf ./dist"
+    "prebuild": "rm -rf ./dist",
+    "test": "vitest run"
   },
   "dependencies": {
-    "ol": "^10.7.0",
+    "ol": "^10.7.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",
