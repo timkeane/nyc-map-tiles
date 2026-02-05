@@ -13,14 +13,14 @@
 		const baseLayer = new Layer({
 			extent: [-8453323, 4774561, -7983695, 5165920],
 			source: new XYZ({
-				url: 'https://finder.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Abasemap@EPSG%3A900913@jpeg/{z}/{x}/{-y}.jpg'
+				url: 'https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Abasemap@EPSG%3A900913@jpeg/{z}/{x}/{-y}.jpg'
 			})
 		});
 		
 		const labelLayer = new Layer({
 			extent: [-8268000, 4870900, -8005000, 5055500],
 			source: new XYZ({
-				url: 'https://finder.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Alabel@EPSG%3A900913@png8/{z}/{x}/{-y}.png8'
+				url: 'https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Alabel@EPSG%3A900913@png8/{z}/{x}/{-y}.png8'
 			})
 		});
 		

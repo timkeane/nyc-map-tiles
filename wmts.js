@@ -14,7 +14,7 @@
 
 		const capabilities = new WMTSCapabilities();
 
-		fetch('https://finder.nyc.gov/geoserver/gwc/service/wmts?REQUEST=GetCapabilities').then(function(response){
+		fetch('https://api.nyc.gov/geoserver/gwc/service/wmts?REQUEST=GetCapabilities').then(function(response){
 			return response.text();
 		}).then(function(text){
 			const result = capabilities.read(text);
