@@ -5,6 +5,7 @@
     import Layer from 'ol/layer/Tile';
     import Map from 'ol/Map';
 
+    const key = import.meta.env.VITE_KEY;
 		const view = new View({
 			center: [-8235252, 4969073],
 			minZoom: 8,
@@ -13,8 +14,12 @@
 		});
 
 		const capabilities = new WMTSCapabilities();
+    const tileLoadFunction = (imageTile, src) => {
+      console.warn(src,`${src}&Key=${key}`)
+      imageTile.getImage().src = `${src}&Key=${key}`;
+    };
 
-		fetch('https://api.nyc.gov/geoserver/gwc/service/wmts?REQUEST=GetCapabilities').then(function(response){
+		fetch(`https://api.nyc.gov/geoserver/gwc/service/wmts?REQUEST=GetCapabilities&Key=${key}`).then(function(response){
 			return response.text();
 		}).then(function(text){
 			const result = capabilities.read(text);
@@ -23,11 +28,13 @@
 				layer: 'carto:basemap',
 				matrixSet: 'EPSG:900913'
 			});
+      baseOptions.tileLoadFunction = tileLoadFunction;
 
 			const labelOptions = optionsFromCapabilities(result, {
 				layer: 'carto:label',
 				matrixSet: 'EPSG:900913'
 			});
+      labelOptions.tileLoadFunction = tileLoadFunction;
 
 			const baseLayer = new Layer({
 				source: new Source(baseOptions)

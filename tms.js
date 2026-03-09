@@ -3,6 +3,8 @@
     import Layer from 'ol/layer/Tile';
     import Map from 'ol/Map';
 
+    const key = import.meta.env.VITE_KEY;
+
 		const view = new View({
 			center: [-8235252, 4969073],
 			minZoom: 8,
@@ -13,14 +15,14 @@
 		const baseLayer = new Layer({
 			extent: [-8453323, 4774561, -7983695, 5165920],
 			source: new XYZ({
-				url: 'https://finder-dev.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Abasemap@EPSG%3A900913@jpeg/{z}/{x}/{-y}.jpg?Key=0a0d7212af7541c19048cb70501853f3'
+				url: `https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Abasemap@EPSG%3A900913@jpeg/{z}/{x}/{-y}.jpg?Key=${key}`
 			})
 		});
 		
 		const labelLayer = new Layer({
 			extent: [-8268000, 4870900, -8005000, 5055500],
 			source: new XYZ({
-				url: 'https://finder-dev.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Alabel@EPSG%3A900913@png8/{z}/{x}/{-y}.png8?Key=0a0d7212af7541c19048cb70501853f3'
+				url: `https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Alabel@EPSG%3A900913@png8/{z}/{x}/{-y}.png8?Key=${key}`
 			})
 		});
 		
