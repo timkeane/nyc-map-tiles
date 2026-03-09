@@ -6,6 +6,7 @@
     import Map from 'ol/Map';
 
     const key = import.meta.env.VITE_KEY;
+
 		const view = new View({
 			center: [-8235252, 4969073],
 			minZoom: 8,
@@ -14,6 +15,7 @@
 		});
 
 		const capabilities = new WMTSCapabilities();
+    
     const tileLoadFunction = (imageTile, src) => {
       console.warn(src,`${src}&Key=${key}`)
       imageTile.getImage().src = `${src}&Key=${key}`;

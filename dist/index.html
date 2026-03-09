@@ -886,6 +886,8 @@
 import XYZ from 'ol/source/XYZ';
 import Layer from 'ol/layer/Tile';
 
+const key = '&lt;your-api-key&gt;';
+
 const view = new View({
   center: [-8235252, 4969073],
   minZoom: 8,
@@ -896,14 +898,14 @@ const view = new View({
 const baseLayer = new Layer({
   extent: [-8453323, 4774561, -7983695, 5165920],
   source: new XYZ({
-    url: 'https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Abasemap%3A3857@jpeg/{z}/{x}/{-y}.jpg?Key=&lt;your-api-key&gt;'
+    url: `https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Abasemap%3A3857@jpeg/{z}/{x}/{-y}.jpg?Key=${key}`
   })
 });
 
 const labelLayer = new Layer({
   extent: [-8268000, 4870900, -8005000, 5055500],
   source: new XYZ({
-    url: 'https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Alabel%3A3857@jpeg/{z}/{x}/{-y}.png8?Key=&lt;your-api-key&gt;'
+    url: `https://api.nyc.gov/geoserver/gwc/service/tms/1.0.0/carto%3Alabel%3A3857@jpeg/{z}/{x}/{-y}.png8?Key=${key}`
   })
 });
 
@@ -923,6 +925,8 @@ import TileLayer from 'ol/layer/Tile';
 import SourceWMTS from 'ol/source/WMTS';
 import Map from 'ol/Map';
 
+const key = '&lt;your-api-key&gt;';
+
 const view = new View({
   center: [-8235252, 4969073],
   minZoom: 8,
@@ -932,7 +936,11 @@ const view = new View({
 
 const parser = new WMTSCapabilities();
 
-fetch('https://api.nyc.gov/geoserver/gwc/service/wmts/?REQUEST=GetCapabilities&Key=&lt;your-api-key&gt;').then(response => {
+const tileLoadFunction = (imageTile, src) => {
+  imageTile.getImage().src = `${src}&Key=${key}`;
+};
+
+fetch(`https://api.nyc.gov/geoserver/gwc/service/wmts/?REQUEST=GetCapabilities&Key=${key}`).then(response => {
   return response.text();
 }).then(text => {
   const result = parser.read(text);
